@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/parquet-go/parquet-go"
 )
@@ -30,14 +30,15 @@ type Candle struct {
 	Close float64
 }
 
+// PivotPoints structure for Fibonacci Pivot Points
 type PivotPoints struct {
-    Pivot float64
-    R1    float64
-    R2    float64
-    R3    float64
-    S1    float64
-    S2    float64
-    S3    float64
+	Pivot float64
+	R1    float64
+	R2    float64
+	R3    float64
+	S1    float64
+	S2    float64
+	S3    float64
 }
 
 // Process all Parquet files in a folder
@@ -46,7 +47,6 @@ func processParquetFiles(inputFolder string, outputFolder string) {
 		log.Fatalf("Failed to create output folder: %v", err)
 	}
 
-	// Process each Parquet file
 	err := filepath.Walk(inputFolder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -87,7 +87,6 @@ func processParquetFile(filePath string, outputFolder string) {
 		n, err := reader.Read(rows)
 		if err != nil {
 			if err.Error() == "EOF" {
-				// End of file reached, break the loop
 				fmt.Println("Reached end of file")
 				break
 			}
@@ -112,7 +111,7 @@ func processParquetFile(filePath string, outputFolder string) {
 			// Debug: Log the timestamp and row data
 			// fmt.Printf("Processing row: Date=%v, Open=%v, High=%v, Low=%v, Close=%v, Volume=%v\n",
 			// 	timestamp, row.Open, row.High, row.Low, row.Close, row.Volume)
-			
+
 			// Filter for 10th Jan 2024
 			if timestamp.Format("2006-01-02") != "2024-01-10" {
 				continue
@@ -134,7 +133,6 @@ func processParquetFile(filePath string, outputFolder string) {
 			if _, exists := candles[intervalKey]; !exists {
 				candles[intervalKey] = &Candle{Open: row.Open, High: row.High, Low: row.Low, Close: row.Close}
 			} else {
-				// Update existing candle
 				candle := candles[intervalKey]
 				if row.High > candle.High {
 					candle.High = row.High
@@ -155,31 +153,29 @@ func processParquetFile(filePath string, outputFolder string) {
 	// fmt.Printf("R1: %.2f, R2: %.2f, R3: %.2f\n", pivotPoints.R1, pivotPoints.R2, pivotPoints.R3)
 	// fmt.Printf("S1: %.2f, S2: %.2f, S3: %.2f\n", pivotPoints.S1, pivotPoints.S2, pivotPoints.S3)
 
-	// Save to CSV
 	saveToCSV(candles, outputFolder, filepath.Base(filePath))
 
-	// Save Pivot Points to a new CSV file
 	savePivotPointsToCSV(pivotPoints, outputFolder, filepath.Base(filePath))
 }
 
 func calculatePivotPoints(high, low, close float64) PivotPoints {
-    pivot := (high + low + close) / 3
-    return PivotPoints{
-        Pivot: pivot,
-        R1:    pivot + 0.382*(high-low),
-        R2:    pivot + 0.618*(high-low),
-        R3:    pivot + (high - low),
-        S1:    pivot - 0.382*(high-low),
-        S2:    pivot - 0.618*(high-low),
-        S3:    pivot - (high - low),
-    }
+	pivot := (high + low + close) / 3
+	return PivotPoints{
+		Pivot: pivot,
+		R1:    pivot + 0.382*(high-low),
+		R2:    pivot + 0.618*(high-low),
+		R3:    pivot + (high - low),
+		S1:    pivot - 0.382*(high-low),
+		S2:    pivot - 0.618*(high-low),
+		S3:    pivot - (high - low),
+	}
 }
 
 // Save aggregated candles to a CSV file
 func saveToCSV(candles map[string]*Candle, outputFolder string, fileName string) {
 	fileName = strings.TrimSuffix(fileName, ".parquet")
 	outputPath := filepath.Join(outputFolder, fileName+".csv")
-	
+
 	file, err := os.Create(outputPath)
 	if err != nil {
 		log.Fatalf("Failed to create CSV file: %v", err)
