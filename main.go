@@ -29,6 +29,16 @@ type Candle struct {
 	Close float64
 }
 
+type PivotPoints struct {
+    Pivot float64
+    R1    float64
+    R2    float64
+    R3    float64
+    S1    float64
+    S2    float64
+    S3    float64
+}
+
 // Process all Parquet files in a folder
 func processParquetFiles(inputFolder string, outputFolder string) {
 	if err := os.MkdirAll(outputFolder, os.ModePerm); err != nil {
@@ -69,6 +79,9 @@ func processParquetFile(filePath string, outputFolder string) {
 	rows := make([]Data, batchSize)
 	candles := make(map[string]*Candle)
 
+	// Variables for Fibonacci Pivot Points
+	var high, low, closePrice float64
+
 	for {
 		n, err := reader.Read(rows)
 		if err != nil {
@@ -104,6 +117,15 @@ func processParquetFile(filePath string, outputFolder string) {
 				continue
 			}
 
+			// Update high, low, and close for the day
+			if row.High > high {
+				high = row.High
+			}
+			if row.Low < low || low == 0 {
+				low = row.Low
+			}
+			closePrice = row.Close
+
 			// Generate 5-minute interval key
 			intervalKey := timestamp.Truncate(5 * time.Minute).Format("2006-01-02 15:04")
 
@@ -123,9 +145,30 @@ func processParquetFile(filePath string, outputFolder string) {
 			}
 		}
 	}
+	// Calculate Fibonacci Pivot Points
+	pivotPoints := calculatePivotPoints(high, low, closePrice)
+
+	// Display Pivot Points
+	fmt.Println("Fibonacci Pivot Points for 2024-01-10:")
+	fmt.Printf("Pivot: %.2f\n", pivotPoints.Pivot)
+	fmt.Printf("R1: %.2f, R2: %.2f, R3: %.2f\n", pivotPoints.R1, pivotPoints.R2, pivotPoints.R3)
+	fmt.Printf("S1: %.2f, S2: %.2f, S3: %.2f\n", pivotPoints.S1, pivotPoints.S2, pivotPoints.S3)
 
 	// Save to CSV
 	saveToCSV(candles, outputFolder, filepath.Base(filePath))
+}
+
+func calculatePivotPoints(high, low, close float64) PivotPoints {
+    pivot := (high + low + close) / 3
+    return PivotPoints{
+        Pivot: pivot,
+        R1:    pivot + 0.382*(high-low),
+        R2:    pivot + 0.618*(high-low),
+        R3:    pivot + (high - low),
+        S1:    pivot - 0.382*(high-low),
+        S2:    pivot - 0.618*(high-low),
+        S3:    pivot - (high - low),
+    }
 }
 
 // Save aggregated candles to a CSV file
