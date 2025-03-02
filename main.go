@@ -97,7 +97,7 @@ func processParquetFile(filePath string, outputFolder string) {
 			// Debug: Log the timestamp and row data
 			fmt.Printf("Processing row: Date=%v, Open=%v, High=%v, Low=%v, Close=%v, Volume=%v\n",
 				timestamp, row.Open, row.High, row.Low, row.Close, row.Volume)
-
+			
 			// Filter for 10th Jan 2024
 			if timestamp.Format("2006-01-02") != "2024-01-10" {
 				continue
@@ -110,6 +110,7 @@ func processParquetFile(filePath string, outputFolder string) {
 			if _, exists := candles[intervalKey]; !exists {
 				candles[intervalKey] = &Candle{Open: row.Open, High: row.High, Low: row.Low, Close: row.Close}
 			} else {
+				// Update existing candle
 				candle := candles[intervalKey]
 				if row.High > candle.High {
 					candle.High = row.High
@@ -125,5 +126,7 @@ func processParquetFile(filePath string, outputFolder string) {
 
 
 func main() {
-	fmt.Println("Hello, World!")
+	inputFolder := "data"          // Folder containing Parquet files
+	outputFolder := "5min_candles" // Folder to save CSV files
+	processParquetFiles(inputFolder, outputFolder)
 }
