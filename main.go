@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+	"strings"
 
 	"github.com/parquet-go/parquet-go"
 )
@@ -176,7 +177,9 @@ func calculatePivotPoints(high, low, close float64) PivotPoints {
 
 // Save aggregated candles to a CSV file
 func saveToCSV(candles map[string]*Candle, outputFolder string, fileName string) {
+	fileName = strings.TrimSuffix(fileName, ".parquet")
 	outputPath := filepath.Join(outputFolder, fileName+".csv")
+	
 	file, err := os.Create(outputPath)
 	if err != nil {
 		log.Fatalf("Failed to create CSV file: %v", err)
@@ -208,6 +211,7 @@ func saveToCSV(candles map[string]*Candle, outputFolder string, fileName string)
 
 // Save Pivot Points to a new CSV file
 func savePivotPointsToCSV(pivotPoints PivotPoints, outputFolder string, fileName string) {
+	fileName = strings.TrimSuffix(fileName, ".parquet")
 	outputPath := filepath.Join(outputFolder, "pivot_points_"+fileName+".csv")
 	file, err := os.Create(outputPath)
 	if err != nil {
