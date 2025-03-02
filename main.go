@@ -85,7 +85,7 @@ func processParquetFile(filePath string, outputFolder string) {
 		}
 
 		// Debug: Log the number of rows read
-		fmt.Printf("Read %d rows from %s\n", n, filePath)
+		// fmt.Printf("Read %d rows from %s\n", n, filePath)
 
 		// Process each row
 		for i := 0; i < n; i++ {
@@ -96,8 +96,8 @@ func processParquetFile(filePath string, outputFolder string) {
 			timestamp := time.Unix(0, row.Date).UTC() // Convert int64 (nanoseconds) to time.Time
 
 			// Debug: Log the timestamp and row data
-			fmt.Printf("Processing row: Date=%v, Open=%v, High=%v, Low=%v, Close=%v, Volume=%v\n",
-				timestamp, row.Open, row.High, row.Low, row.Close, row.Volume)
+			// fmt.Printf("Processing row: Date=%v, Open=%v, High=%v, Low=%v, Close=%v, Volume=%v\n",
+			// 	timestamp, row.Open, row.High, row.Low, row.Close, row.Volume)
 			
 			// Filter for 10th Jan 2024
 			if timestamp.Format("2006-01-02") != "2024-01-10" {
