@@ -156,6 +156,9 @@ func processParquetFile(filePath string, outputFolder string) {
 
 	// Save to CSV
 	saveToCSV(candles, outputFolder, filepath.Base(filePath))
+
+	// Save Pivot Points to a new CSV file
+	savePivotPointsToCSV(pivotPoints, outputFolder, filepath.Base(filePath))
 }
 
 func calculatePivotPoints(high, low, close float64) PivotPoints {
@@ -200,6 +203,38 @@ func saveToCSV(candles map[string]*Candle, outputFolder string, fileName string)
 		if err := writer.Write(record); err != nil {
 			log.Fatalf("Failed to write record to CSV: %v", err)
 		}
+	}
+}
+
+// Save Pivot Points to a new CSV file
+func savePivotPointsToCSV(pivotPoints PivotPoints, outputFolder string, fileName string) {
+	outputPath := filepath.Join(outputFolder, "pivot_points_"+fileName+".csv")
+	file, err := os.Create(outputPath)
+	if err != nil {
+		log.Fatalf("Failed to create CSV file: %v", err)
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// Write header
+	if err := writer.Write([]string{"Pivot", "R1", "R2", "R3", "S1", "S2", "S3"}); err != nil {
+		log.Fatalf("Failed to write header to CSV: %v", err)
+	}
+
+	// Write pivot points data
+	record := []string{
+		fmt.Sprintf("%.2f", pivotPoints.Pivot),
+		fmt.Sprintf("%.2f", pivotPoints.R1),
+		fmt.Sprintf("%.2f", pivotPoints.R2),
+		fmt.Sprintf("%.2f", pivotPoints.R3),
+		fmt.Sprintf("%.2f", pivotPoints.S1),
+		fmt.Sprintf("%.2f", pivotPoints.S2),
+		fmt.Sprintf("%.2f", pivotPoints.S3),
+	}
+	if err := writer.Write(record); err != nil {
+		log.Fatalf("Failed to write record to CSV: %v", err)
 	}
 }
 
