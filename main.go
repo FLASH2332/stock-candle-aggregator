@@ -148,11 +148,11 @@ func processParquetFile(filePath string, outputFolder string) {
 	// Calculate Fibonacci Pivot Points
 	pivotPoints := calculatePivotPoints(high, low, closePrice)
 
-	// Display Pivot Points
-	fmt.Println("Fibonacci Pivot Points for 2024-01-10:")
-	fmt.Printf("Pivot: %.2f\n", pivotPoints.Pivot)
-	fmt.Printf("R1: %.2f, R2: %.2f, R3: %.2f\n", pivotPoints.R1, pivotPoints.R2, pivotPoints.R3)
-	fmt.Printf("S1: %.2f, S2: %.2f, S3: %.2f\n", pivotPoints.S1, pivotPoints.S2, pivotPoints.S3)
+	// // Display Pivot Points
+	// fmt.Println("Fibonacci Pivot Points for 2024-01-10:")
+	// fmt.Printf("Pivot: %.2f\n", pivotPoints.Pivot)
+	// fmt.Printf("R1: %.2f, R2: %.2f, R3: %.2f\n", pivotPoints.R1, pivotPoints.R2, pivotPoints.R3)
+	// fmt.Printf("S1: %.2f, S2: %.2f, S3: %.2f\n", pivotPoints.S1, pivotPoints.S2, pivotPoints.S3)
 
 	// Save to CSV
 	saveToCSV(candles, outputFolder, filepath.Base(filePath))
