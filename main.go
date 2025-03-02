@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"log"
 	"os"
@@ -122,8 +123,42 @@ func processParquetFile(filePath string, outputFolder string) {
 			}
 		}
 	}
+
+	// Save to CSV
+	saveToCSV(candles, outputFolder, filepath.Base(filePath))
 }
 
+// Save aggregated candles to a CSV file
+func saveToCSV(candles map[string]*Candle, outputFolder string, fileName string) {
+	outputPath := filepath.Join(outputFolder, fileName+".csv")
+	file, err := os.Create(outputPath)
+	if err != nil {
+		log.Fatalf("Failed to create CSV file: %v", err)
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// Write header
+	if err := writer.Write([]string{"Interval", "Open", "High", "Low", "Close"}); err != nil {
+		log.Fatalf("Failed to write header to CSV: %v", err)
+	}
+
+	// Write candle data
+	for interval, candle := range candles {
+		record := []string{
+			interval,
+			fmt.Sprintf("%.2f", candle.Open),
+			fmt.Sprintf("%.2f", candle.High),
+			fmt.Sprintf("%.2f", candle.Low),
+			fmt.Sprintf("%.2f", candle.Close),
+		}
+		if err := writer.Write(record); err != nil {
+			log.Fatalf("Failed to write record to CSV: %v", err)
+		}
+	}
+}
 
 func main() {
 	inputFolder := "data"          // Folder containing Parquet files
